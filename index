@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>カレンダー</title>
+  <style>
+    body { 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      height: 100vh; 
+      margin: 0;
+      font-family: sans-serif;
+    }
+    .calendar {
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      max-width: 800px;
+      border-collapse: collapse;
+      margin: 10px auto;
+    }
+    th, td {
+      width: 80px; 
+      height: 60px; 
+      text-align: center; 
+      border: 1px solid #aaa;
+      font-size: 18px;
+    }
+    th {
+      background: #eee;
+    }
+    h2 {
+      font-size: 32px;
+     }
+    .sunday {
+      color: red;
+    }
+    .saturday {
+      color: blue;
+    }
+    .holiday {
+      color: red;
+      font-weight: bold;
+    }
+    .today {
+      background: #ffeb3b; /* 黄色背景 */
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="calendar">
+    <h2 id="month"></h2>
+    <table id="calendar"></table>
+  </div>
+
+  <script>
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth(); // 0-11
+    const todayDate = today.getDate();
+
+    const monthNames = [
+      "January","February","March","April","May","June",
+      "July","August","September","October","November","December"
+    ];
+
+    document.getElementById("month").textContent = `${monthNames[month]} ${year}`;
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const lastDate = new Date(year, month + 1, 0).getDate();
+    const prevLastDate = new Date(year, month, 0).getDate();
+
+    const table = document.getElementById("calendar");
+
+    // 曜日ヘッダー
+    const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    let thead = "<tr>";
+    for (let d of days) {
+      thead += `<th>${d}</th>`;
+    }
+    thead += "</tr>";
+    table.innerHTML = thead;
+
+    // カレンダー本体
+    let row = "<tr>";
+    let dayCount = 1;
+
+    // 先月の日付
+    for (let i = 0; i < firstDay; i++) {
+      row += `<td style="color:#ccc">${prevLastDate - firstDay + i + 1}</td>`;
+    }
+
+    // 今月の日付
+    for (let date = 1; date <= lastDate; date++) {
+      let weekday = (firstDay + date - 1) % 7;
+      let cls = "";
+      if (weekday === 0) cls = "sunday";
+      if (weekday === 6) cls = "saturday";
+      if (date === todayDate) cls += (cls ? " today" : "today");
+
+      row += `<td class="${cls}" id="day-${date}">${date}</td>`;
+
+      if (weekday === 6) {
+        row += "</tr><tr>";
+      }
+    }
+
+    // 翌月の日付
+    let weekday = (firstDay + lastDate - 1) % 7;
+    for (let i = weekday + 1; i <= 6; i++) {
+      row += `<td style="color:#ccc">${i - weekday}</td>`;
+    }
+
+    row += "</tr>";
+    table.innerHTML += row;
+
+    // === 祝日をAPIから取得 ===
+    fetch(`https://holidays-jp.github.io/api/v1/${year}/date.json`)
+      .then(res => res.json())
+      .then(data => {
+        for (let date in data) {
+          let d = new Date(date);
+          if (d.getFullYear() === year && d.getMonth() === month) {
+            const dayCell = document.getElementById(`day-${d.getDate()}`);
+            if (dayCell) {
+              dayCell.classList.add("holiday");
+              dayCell.title = data[date]; // hoverで名前表示
+            }
+          }
+        }
+      });
+  </script>
+</body>
+</html>
