@@ -20,22 +20,23 @@
     }
     table {
       width: 100%;
-      max-width: 800px;
+      max-width: 1600px; /* 800px → 2倍 */
       border-collapse: collapse;
-      margin: 10px auto;
+      margin: 20px auto; /* 10px → 20px */
     }
     th, td {
-      width: 80px; 
-      height: 60px; 
+      width: 160px;  /* 80px → 2倍 */
+      height: 120px; /* 60px → 2倍 */
       text-align: center; 
-      border: 1px solid #aaa;
-      font-size: 18px;
+      border: 2px solid #aaa; /* 1px → 2px */
+      font-size: 36px; /* 18px → 2倍 */
     }
     th {
       background: #eee;
     }
     h2 {
-      font-size: 32px;
+      font-size: 64px; /* 32px → 2倍 */
+      margin: 20px 0;
      }
     .sunday {
       color: red;
@@ -89,7 +90,6 @@
 
     // カレンダー本体
     let row = "<tr>";
-    let dayCount = 1;
 
     // 先月の日付
     for (let i = 0; i < firstDay; i++) {
